@@ -127,13 +127,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     margin: 0 0 26px;
   }
   .bullets li {
-    /* nowrap + clamp: o bullet encolhe em vez de quebrar linha no celular */
-    white-space: nowrap;
-    font-size: clamp(14px, 4.3vw, 17px);
-    line-height: 1.75;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: clamp(14px, 4.3vw, 16px);
+    line-height: 1.5;
     text-align: left;
+    margin-bottom: 10px;
   }
-  .bullets .b-emoji { margin-right: 10px; }
+  .bullets .b-emoji { flex-shrink: 0; }
 
   .step-label {
     font-size: 12px;
@@ -420,7 +422,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- logo.png = lockup da Sun Alinhadores em PNG com fundo transparente
          (TODO: soltar o arquivo nesta pasta). Sem ele, o onerror mostra o
          .brand-text: símbolo do sol em SVG + wordmark, mesma paleta. -->
-    <img src="logo.png" alt="Sun Alinhadores" class="brand-logo"
+    <img src="https://contatocaexeta-maker.github.io/sun-alinhadores-formulario/logo.png" alt="Sun Alinhadores" class="brand-logo"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
     <div class="brand-text">
       <svg class="brand-mark" viewBox="0 0 100 100" fill="none" aria-hidden="true">
@@ -441,10 +443,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <h1>🦷 Ortodontista, domine <span class="hl">alinhadores</span> sem depender de <span class="hl">marca</span></h1>
 
     <ul class="bullets">
-      <li><span class="b-emoji">😁</span>Resultado previsível em cada caso</li>
-      <li><span class="b-emoji">📐</span>Do básico ao avançado, na prática</li>
-      <li><span class="b-emoji">🛠️</span>Stripping, attachment e refinamento</li>
-      <li><span class="b-emoji">🏆</span>8ª turma presencial, em Brasília</li>
+      <li><span class="b-emoji">📋</span>Planejamento de casos reais dos próprios alunos</li>
+      <li><span class="b-emoji">🛠️</span>Hands-on prático de mecânicas acessórias (disponibilizamos todo o material)</li>
+      <li><span class="b-emoji">🦴</span>Biomecânica aplicada para tornar o tratamento mais previsível</li>
+      <li><span class="b-emoji">🎯</span>Do planejamento ao paciente finalizado: um método completo</li>
     </ul>
 
     <button class="primary-btn" id="btn-cover-start">QUERO MINHA VAGA NA IMERSÃO →</button>
@@ -530,7 +532,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const WEBHOOK_KEY         = "TODO_WEBHOOK_KEY";
   const WEBHOOK_PIPELINE_ID = "TODO_PIPELINE_ID";
   // Número que recebe o clique de "Garantir minha vaga" (com DDI+DDD, só dígitos)
-  const WHATSAPP_CTA_NUMBER = "TODO_WHATSAPP_SUN";
+  const WHATSAPP_CTA_NUMBER = "556198666062";
   const WHATSAPP_CTA_TEXT   = "Olá! Preenchi o formulário e quero garantir minha vaga na 8ª turma da Imersão Alinhadores que dão resultado.";
   // =========================================================
 
@@ -1052,6 +1054,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       // Envia o lead completo pro CRM
       await sendToWebhook();
+
+      // Quem respondeu "Sim" (A ou B) já vai direto pro WhatsApp, sem passar
+      // pela tela final — só quem respondeu "Nessa data não" (C) vê a tela
+      // de agradecimento com o botão manual.
+      const vaiDiretoPraWhatsapp = answers.periodo === 'sim_ja_me_organizo' || answers.periodo === 'sim_quero_detalhes';
+      if (vaiDiretoPraWhatsapp && !WHATSAPP_CTA_NUMBER.startsWith('TODO_')) {
+        pushDataLayerEvent('clicou_whatsapp', { origem: 'redirecionamento_automatico' });
+        window.location.href = 'https://wa.me/' + WHATSAPP_CTA_NUMBER + '?text=' + encodeURIComponent(WHATSAPP_CTA_TEXT);
+        return;
+      }
 
       stepIndex = 5;
       updateProgress();
